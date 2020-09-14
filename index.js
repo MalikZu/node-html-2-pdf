@@ -22,7 +22,7 @@ let getReq = app.get("/", async(req,res) => {
     });
 });
 
-app.listen(3000, '0.0.0.0');
+app.listen(process.env.PORT || 3000, '0.0.0.0');
 console.log('Node server running on port 3000');
 
 
