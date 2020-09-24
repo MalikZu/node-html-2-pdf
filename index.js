@@ -64,7 +64,7 @@ let postReq = app.post("/post", jsonParser, async (req, res) => {
         }
       });
     } else{
-      var downloadUrl = req.protocol + '://' + req.get('host') + '/getFile?filename=' + final.filename + '&delete=1';
+      var downloadUrl =  '/getFile?filename=' + final.filename + '&delete=1';
       console.log(downloadUrl)
       res.send(downloadUrl);
     } 
