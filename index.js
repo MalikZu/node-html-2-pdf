@@ -5,7 +5,6 @@ const pdf = require('html-pdf');
 const bodyParser = require('body-parser');
 
 const jsonParser = bodyParser.json()
-const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 
 let getReq = app.get("/get", async (req, res) => {
@@ -33,7 +32,7 @@ let getFile = app.get("/getFile", async (req, res) => {
   res.download(filename, () => {
     try {
       if (isDelete) {
-        fs.unlinkSync(final.filename)
+        fs.unlinkSync(filename)
         //file removed
       }
     } catch (err) {
@@ -43,16 +42,18 @@ let getFile = app.get("/getFile", async (req, res) => {
 });
 
 
-let postReq = app.post("/post", urlencodedParser, async (req, res) => {
-  const name = req.query.name;
-  const isDownload = req.query.download | 1;
-  const isDelete = req.query.delete | 1;
+let postReq = app.post("/post", jsonParser, async (req, res) => {
+  const name = req.body.name;
+  const isDownload = (req.body.download !== undefined)? req.body.download :true;
+  const isDelete = req.body.delete !== undefined? req.body.delete : true;
   const html = req.body.html;
 
+  console.log(req.body.download, isDownload)
+  
   pdf.create(html).toFile(`./${name}-${new Date().getUTCMilliseconds()}-${(Math.random() * 10000).toFixed(0)}.pdf`, function (err, final) {
     console.log(final.filename);
     if (isDownload) {
-      res.download(filename, () => {
+      res.download(final.filename, () => {
         try {
           if (isDelete) {
             fs.unlinkSync(final.filename);
@@ -63,7 +64,8 @@ let postReq = app.post("/post", urlencodedParser, async (req, res) => {
         }
       });
     } else{
-      var downloadUrl = req.protocol + '://' + req.get('host') + '/getFile?filename=' +filename + '&delete=1';
+      var downloadUrl = req.protocol + '://' + req.get('host') + '/getFile?filename=' + final.filename + '&delete=1';
+      console.log(downloadUrl)
       res.send(downloadUrl);
     } 
   });
